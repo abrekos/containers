@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="assets/styles/common.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="" id="form">
+      <div class="messages" id="messages"></div>
+
+      <div class="write-bar">
+        <div class="write-bar__content">
+          <input
+            id="form_input"
+            class="input-area"
+            placeholder="Текстовое сообщение"
+          />
+
+          <button class="button">Отправить</button>
+        </div>
+      </div>
+    </form>
+  </body>
+
+  <script type="module">
+    import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+
+    const userId = Date.now();
+    const socket = io();
+
+    const messages = document.querySelector("#messages");
+    const input = document.querySelector("#form_input");
+    const form = document.querySelector("#form");
+
+    const send = (event, data) => {
+      socket.emit(
+        event,
+        JSON.stringify({
+          userId,
+          ...data,
+        })
+      );
+    };
+
+    form.onsubmit = (e) => {
+      e.preventDefault();
+
+      if (input.value) {
+        send("message", { text: input.value });
+        input.value = "";
+      }
+    };
+
+    socket.on("message", function (data) {
+      const d = JSON.parse(data);
+      const isFromMe = d.userId === userId;
+      const messageBubble = document.createElement("div");
+
+      messageBubble.className = "message-bubble";
+      messageBubble.innerHTML = `<div class="message">${d.text}</div>`;
+
+      if (isFromMe) {
+        messageBubble.className += " message-bubble--from-me";
+      }
+
+      messages.append(messageBubble);
+      window.scrollTo({
+        top: 100000000000,
+        behavior: "smooth",
+      });
+    });
+  </script>
+</html>
