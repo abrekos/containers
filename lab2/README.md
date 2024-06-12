@@ -16,6 +16,7 @@
 - `.env.example` - шаблон .env файла
 - `docker-compose.yml` - папка для вложений для README.md
 - `README.md` - описание работы
+- `CHANGES.md` - change log
 
 ## Что сделано
 
