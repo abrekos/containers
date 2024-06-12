@@ -46,6 +46,10 @@
 
 Запуск производился из корня репозитория командой `docker compose -f lab2/docker-compose.yml up -d`
 
+## Результат
+
+![alt text](attachments/image.png)
+
 ## Ответы на вопросы
 
 ### Ограничение ресурсов
