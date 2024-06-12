@@ -18,6 +18,6 @@ EXPOSE 3000
 
 # 3. Фикс третьей плохой практики
 # Здесь используется том, который позволит хранить постоянные данные
-#VOLUME ./src/storage
+VOLUME ./src/storage
 
 ENTRYPOINT npm start
