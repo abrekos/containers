@@ -14,7 +14,7 @@
 - `volumes` - примонтированная директория для томов приложения и postgres. Находится в .gitignore
 - `.env` - файл с переменными окружения. Оставлен в репозитории для возможности запуска
 - `.env.example` - шаблон .env файла
-- `docker-compose.yml` - папка для вложений для README.md
+- `docker-compose.yml` - docker compose
 - `README.md` - описание работы
 - `CHANGES.md` - change log
 

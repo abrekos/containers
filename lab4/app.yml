@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-configmap
+  labels:
+    app: app
+data:
+  SOME_PARAMETER: "1"
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      initContainers:
+        - name: app-migration
+          image: localhost:5000/lab4:1.0
+          command: ["npm", "run", "migrate"]
+          envFrom:
+            - configMapRef:
+                name: postgres-configmap
+            - configMapRef:
+                name: app-configmap
+            - secretRef:
+                name: postgres-secret
+          env:
+            - name: POSTGRES_HOST
+              value: postgres-service
+          volumeMounts:
+            - name: content
+              mountPath: /var/www/app/src/storage/
+
+      containers:
+        - name: app
+          image: localhost:5000/lab4:1.0
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: postgres-configmap
+            - configMapRef:
+                name: app-configmap
+            - secretRef:
+                name: postgres-secret
+          env:
+            - name: POSTGRES_HOST
+              value: postgres-service
+          volumeMounts:
+            - name: content
+              mountPath: /var/www/app/src/storage/
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 60
+          imagePullPolicy: Never
+      restartPolicy: Always
+      volumes:
+        - name: content
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+  labels:
+    app: app
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+  selector:
+    app: app
